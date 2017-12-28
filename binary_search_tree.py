@@ -110,9 +110,13 @@ class BinarySearchTree():
         return self._search_node(self.root, key)
     
     def _remove_node(self, node, key):
+        """
+        父节点总是会接收到函数的返回值，用来处理指针问题。
+        """
         if node == None:
             return None
         if key < node.key:
+            # 向父节点传送函数的返回值
             node.left = self._remove_node(node.left, key)
             return node
         elif key > node.key:
@@ -125,16 +129,19 @@ class BinarySearchTree():
                 return None
             # 第二种情况：只有一个子节点
             if node.left == None:
+                # 这种情况下被删除的节点只有右儿子
+                # 让父节点原本指向它的引用，改为指向它的右儿子即可
                 return node.right
             elif node.right == None:
                 return node.left
             # 第三种情况： 这个节点有两个子节点
             else:
-                # 找到这个节点的最小的后代
+                # 找到这个节点的最小的后代 这个后代被称为继承者
                 aux = self._min_node(node.right)
 #                print(f'aux is now{aux}\n\n')
-                # 用这个后代的key代替这个节点的key
+                # 用这个后代的key代替这个节点的key 可以说这个节点已经被移除了
                 node.key = aux.key
+                # 但是这个时候出现两个相同键的节点
                 # 在它的后代（只有可能在右支）中移除这个节点
                 node.right = self._remove_node(node.right, aux.key)
 #                print(f'{node}.right is {node.right}')
