@@ -12,6 +12,7 @@ class BinarySearchTree():
     def __init__(self):
         self.root = None
     def _insert_node(self, node, new_node):
+        # 总是向最后一行加入新的节点
         if node.key > new_node.key:
             if node.left == None:
                 node.left = new_node
