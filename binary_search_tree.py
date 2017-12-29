@@ -1,16 +1,63 @@
-class Node():
-    def __init__(self, key):
-        self.key = key
-        self.right = None
-        self.left = None
-    def __repr__(self):
-        return f'<Node key: {self.key} left: {self.left} right: {self.right} \n>'
 
             
-            
 class BinarySearchTree():
-    def __init__(self):
+    def __init__(self, init=None):
         self.root = None
+        if init:
+            self.insert(init)
+
+        
+        
+        
+    class Node():
+        def __init__(self, key):
+            self.key = key
+            self.right = None
+            self.left = None
+            
+            
+        def __repr__(self):
+            return f'<Node key: {self.key} left: {self.left} right: {self.right} \n>'
+
+    def _max_depth_node(self, node):
+        if node == None:
+            return 0
+        elif node.left == None and node.right == None:
+            return 1
+        # 如果节点不为空，直接返回左右深度的最大值+1 即可
+        else:
+            left_depth = self._max_depth_node(node.left)
+            right_depth = self._max_depth_node(node.right)
+            return max(left_depth, right_depth) + 1
+        
+    @property
+    def max_depth(self):
+        return self._max_depth_node(self.root)
+    
+    def _min_depth_node(self, node):
+        if node == None:
+            return 0
+        # 下面这一行其实可以不写 我感觉可以用来减小递归深度?
+        elif node.left == None and node.right == None:
+            return 1
+        # 如果节点不为空，不能直接返回左右节点深度的最小值
+        # 因为如果节点只有右子树，直接返回最小值会返回1
+        # 但是事实上叶子节点在右子树上，需要返回右子树的深度
+        elif node.left == None:
+            return self._min_depth_node(node.right) + 1
+        elif node.right == None:
+            return self._min_depth_node(node.left) + 1
+        else:
+            left_min_depth = self._min_depth_node(node.left)
+            right_min_depth = self._min_depth_node(node.right)
+            return min(left_min_depth, right_min_depth) + 1
+            
+            
+    @property
+    def min_depth(self):
+        return self._min_depth_node(self.root)
+        
+        
     def _insert_node(self, node, new_node):
         # 总是向最后一行加入新的节点
         if node.key > new_node.key:
@@ -29,7 +76,7 @@ class BinarySearchTree():
             for i in key:
                 self.insert(i)
         else:
-            new_node = Node(key)
+            new_node = self.Node(key)
             if self.root == None:
                 self.root = new_node
             else:
