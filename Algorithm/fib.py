@@ -5,18 +5,7 @@ Created on Fri Jan  5 23:42:28 2018
 
 @author: zqun(athemeroy)
 """
-from functools import wraps
-
-def memo(func):
-    cache = {}
-    @wraps(func)
-    def wrapper(*args):
-        if args not in cache:
-            cache[args] = func(*args)
-        return cache[args]
-    return wrapper
-
-
+from memo import memo
 
 
 @memo
