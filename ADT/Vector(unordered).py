@@ -1,5 +1,5 @@
 class Vector:
-    def __init__(self, capacity=3, default_capacity=3):
+    def __init__(self, capacity=2, default_capacity=2):
         # 向量的容纳空间
         self._default_capacity = default_capacity
         self._capacity = capacity
@@ -127,12 +127,67 @@ class Vector:
             cur += 1
 
     def disordered(self):
-        cur = 1
-        while cur < self.size:
-            if self._elem[cur] < self._elem[cur - 1]:
+        cur = 0
+        while cur < self.size - 1:
+            if self._elem[cur] > self._elem[cur + 1]:
                 return True
+            cur += 1
         return False
 
+    def merge_sort(self):
+        """
+        归并排序
+        :return: 排序好的向量
+        """
+        def merge(left, right):
+            """
+            归并排序的合并部分
+            :param left: 左侧向量
+            :param right: 右侧向量
+            :return: 按照大小合并之后的向量
+            """
+            if right is None:
+                return left
+            merged_result = Vector()
+            i = 0
+            j = 0
+            for k in range(left.size + right.size):
+                if i == left.size:
+                    merged_result.append(right[j])
+                    j += 1
+                elif j == right.size:
+                    merged_result.append(left[i])
+                    i += 1
+                elif left[i] < right[j]:
+                    merged_result.append(left[i])
+                    i += 1
+                else:
+                    merged_result.append(right[j])
+                    j += 1
+            return merged_result
+        # 用来分割向量， 生成一个包含仅由一个一个元素组成的向量的向量
+        divided_vector = Vector()
+        i = 0
+        while i < self.size:
+            atom_vector = Vector()
+            atom_vector.append(self[i])
+            divided_vector.append(atom_vector)
+            i += 1
+        # 开始合并， 只要合并之后的向量的长度依然超过1
+        while divided_vector.size > 1:
+            i = 0
+            merged_vector = Vector()
+            # 就用一个新的向量组成两两合并之后的向量
+            while i < divided_vector.size:
+                merged_vector.append(merge(divided_vector._elem[i],
+                                           divided_vector._elem[i + 1]))
+                i += 2
+            # print(f"done {merged_vector.size},{merged_vector}")
+            # 用一个新的向量组成两两合并之后的向量
+            divided_vector = merged_vector
+        # 因为上面是最后append了merge之后的结果，所以最后得到的向量一定是Vector[Vector, None]的形式
+        # 所以最后取向量的第一个就可以了
+        return divided_vector[0]
 
     def __repr__(self):
         return f"<Vector elem:{self._elem}>"
@@ -142,22 +197,33 @@ if __name__ == '__main__':
     vec = Vector()
     import random
 
-    for i in range(1000):
-        vec.append(random.randint(0, 200))
-    print('removing 3')
-    vec.remove(3)
-    print('removing 2,80')
-    print(vec.remove(2, 80))
-    print(vec)
-    print('searching for 1 in [10,20)')
-    print(vec.search(1, [10, 20]))
-    print(f'searching for {vec[15]} in [10,20)')
-    print(vec.search(vec[15], [10, 20]))
-    print(vec)
-    print(f'vec.size : {vec.size}')
-    print('deduplicating')
-    print(vec.deduplicate())
-    print(f'vec.size: {vec.size}')
-    print('traverse plus one')
-    vec.traverse(lambda x: x+1)
-    print(vec)
+    for i in range(random.randint(20, 1000)):
+        vec.append(random.randint(0, 400))
+    # print('removing 3')
+    # vec.remove(3)
+    # # print('removing 2,80')
+    # # print(vec.remove(2, 80))
+    # # print(vec)
+    # print('searching for 1 in [10,20)')
+    # print(vec.search(1, [10, 20]))
+    # print(f'searching for {vec[15]} in [10,20)')
+    # print(vec.search(vec[15], [10, 20]))
+    # print(vec)
+    # print(f'vec.size : {vec.size}')
+    # print('deduplicating')
+    # print(vec.deduplicate())
+    # print(f'vec.size: {vec.size}')
+    # print('traverse plus one')
+    # vec.traverse(lambda x: x+1)
+    # print(vec)
+    # vec.append(1)
+    # vec.append(0)
+    # print(vec.divide(vec))
+    # print(vec.merge(vec.divide(vec)))
+    print(vec.size)
+    a = vec.merge_sort()
+    # print(vec.disordered())
+    print(a)
+    print(a.size)
+    print(a.disordered())
+    # print(a.disordered())
