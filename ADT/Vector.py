@@ -24,21 +24,19 @@ class Vector:
         del old_elem
         return
 
-    def _shrink(self):
-        # 如果存储空间过于富裕了，缩容
-        if self._size > self._capacity >> 1 or self._capacity == self._default_capacity:
-            return
-        # 这里应该找一块内存存进去
-        old_size = self._size
+    def _shrink(self, position):
+        """
+        从postion开始的所有元素直接截断
+        :param position: 被截断的第一个元素
+        :return: 截断后的新向量
+        """
         old_elem = self._elem
-        # self.__init__(max(self._default_capacity, self._capacity >> 1))
-        self.__init__(self._capacity >> 1)
-        for i in range(old_size):
+        i = 0
+        self.__init__(position)
+        while i < position:
             self._elem[i] = old_elem[i]
-            self._size += 1
-        del old_elem
-        if self._size < self._capacity >> 1:
-            self._shrink()
+            i += 1
+        self._size = position
         return
 
     def __getitem__(self, item):
@@ -78,16 +76,11 @@ class Vector:
                 raise IndexError('向量超过上界')
             cur_lo = lo
             cur_hi = hi
-            while cur_lo < self._size:
-                if cur_hi < self._size:
-                    self._elem[cur_lo] = self._elem[cur_hi]
-                    cur_hi += 1
-                else:
-                    self._elem[cur_lo] = None
+            while cur_hi < self._size:
+                self._elem[cur_lo] = self._elem[cur_hi]
+                cur_hi += 1
                 cur_lo += 1
-            self._size -= hi - lo
-            # 如有必要，缩容
-            self._shrink()
+            self._shrink(cur_lo)
             return hi - lo
         else:
             lo_elem = self._elem[lo]
@@ -197,13 +190,14 @@ if __name__ == '__main__':
     vec = Vector()
     import random
 
-    for i in range(random.randint(20, 1000)):
+    for i in range(10):
         vec.append(random.randint(0, 400))
     # print('removing 3')
     # vec.remove(3)
-    # # print('removing 2,80')
-    # # print(vec.remove(2, 80))
-    # # print(vec)
+    print(vec)
+    print('removing 2,8')
+    print(vec.remove(2, 8))
+    print(vec)
     # print('searching for 1 in [10,20)')
     # print(vec.search(1, [10, 20]))
     # print(f'searching for {vec[15]} in [10,20)')
@@ -220,10 +214,10 @@ if __name__ == '__main__':
     # vec.append(0)
     # print(vec.divide(vec))
     # print(vec.merge(vec.divide(vec)))
-    print(vec.size)
-    a = vec.merge_sort()
+    # print(vec.size)
+    # a = vec.merge_sort()
     # print(vec.disordered())
-    print(a)
-    print(a.size)
-    print(a.disordered())
+    # print(a)
+    # print(a.size)
+    # print(a.disordered())
     # print(a.disordered())

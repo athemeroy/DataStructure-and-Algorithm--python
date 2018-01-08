@@ -22,6 +22,48 @@ class Vector_ordered():
         self._size = old_size
         return
 
+    def disordered(self):
+        i = 0
+        while i < self.size - 1:
+            if self._elem[i] > self._elem[i + 1]:
+                return True
+            i += 1
+        return False
+
+    def shrink(self, position):
+        """
+        从postion开始的所有元素直接截断
+        :param position: 被截断的第一个元素
+        :return: 截断后的新向量
+        """
+        old_elem = self._elem
+        i = 0
+        self.__init__(position)
+        while i < position:
+            self._elem[i] = old_elem[i]
+            i += 1
+        self._size = position
+        return
+
+    def deduplicate(self):
+        """
+        删除列表中的重复元素
+        因为是有序向量，所以用两个指针对应：在两个指针数值相等时，右指针向右移动
+        当遇到不同的元素时，左指针右移一格，将左指针对应的元素值赋值为右指针的值
+        当右指针达到向量末尾，截断左指针后方的所有元素
+        :return:删除后的原列表
+        """
+        assert (not self.disordered())
+        i = 0
+        j = 1
+        while j < self.size:
+            if self._elem[i] == self._elem[j]:
+                j += 1
+            else:
+                i += 1
+                self._elem[i] = self._elem[j]
+        return self.shrink(i + 1)
+
     def search(self, value):
         """
         查找某个值在向量中的秩
@@ -45,7 +87,7 @@ class Vector_ordered():
         while cur > position:
             self._elem[cur] = self._elem[cur - 1]
             cur -= 1
-        print(f'inserted { value } to {cur + 1}')
+        # print(f'inserted { value } to {cur + 1}')
         self._elem[cur + 1] = value
         self._size += 1
         return
@@ -57,9 +99,11 @@ class Vector_ordered():
 if __name__ == '__main__':
     vec = Vector_ordered()
     import random
-    for i in range(100000):
-        vec.insert(random.randint(0, 50))
-    print(vec.size)
+    for i in range(1000):
+        vec.insert(random.randint(0, 5500))
+    print(vec)
+    vec.deduplicate()
+    print(vec)
     # vec.insert(65)
     # print(vec)
     # vec.insert(5)
