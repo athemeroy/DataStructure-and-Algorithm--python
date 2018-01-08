@@ -78,6 +78,23 @@ class Vector_ordered():
                 return i - 1
         return i - 1
 
+    def binary_search(self, value):
+        return self.binary_search_range(value, 0, self.size)
+
+    def binary_search_range(self, value, lo, hi):
+        if hi == lo:
+            return lo
+        i = ((hi - lo) >> 1) + lo
+        if value < self._elem[i]:
+            # print(f'not found, next:{lo}, {i}')
+            return self.binary_search_range(value, lo, i)
+        elif value > self._elem[i]:
+            # print(f'not found, next:{i+1}, {hi}')
+            return self.binary_search_range(value, i + 1, hi)
+        else:
+            # print(f'found {i}')
+            return i
+
     def insert(self, value):
         self._expand()
         # print(f'expanded {self}')
@@ -99,11 +116,11 @@ class Vector_ordered():
 if __name__ == '__main__':
     vec = Vector_ordered()
     import random
+
     for i in range(1000):
         vec.insert(random.randint(0, 5500))
     print(vec)
-    vec.deduplicate()
-    print(vec)
+    print(vec.binary_search(2))
     # vec.insert(65)
     # print(vec)
     # vec.insert(5)
