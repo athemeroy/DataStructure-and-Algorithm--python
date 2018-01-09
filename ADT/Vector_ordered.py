@@ -45,6 +45,26 @@ class Vector_ordered():
         self._size = position
         return
 
+    def remove(self, lo, hi=None):
+        # 为什么不通过反复移除一个元素实现删除很多元素呢？
+        # 如果反复调用的话，会导致每次都要把后继移动一格，复杂度到了o(n^2)
+        # 而现在这种情况，只需要移动一次 o(n)
+        if hi:
+            if hi > self.size:
+                raise IndexError('向量超过上界')
+            cur_lo = lo
+            cur_hi = hi
+            while cur_hi < self._size:
+                self._elem[cur_lo] = self._elem[cur_hi]
+                cur_hi += 1
+                cur_lo += 1
+            self.shrink(cur_lo)
+            return hi - lo
+        else:
+            lo_elem = self._elem[lo]
+            self.remove(lo, lo + 1)
+            return lo_elem
+
     def deduplicate(self):
         """
         删除列表中的重复元素
@@ -66,6 +86,25 @@ class Vector_ordered():
 
     def search(self, value):
         """
+        使用二分查找（终板）查找某个值在向量中的秩
+        :param value: 要查找的值
+        :return: 不大于value的最后一个元素的位置
+        """
+        return self.search_range(value, 0, self.size)
+
+    def search_range(self, value, lo, hi):
+        # print(f'now lo {lo} hi {hi} mid {(hi+lo) >> 1}')
+        while hi > lo:
+            mid = (hi + lo) >> 1
+            if value < self._elem[mid]:
+                hi = mid
+            else:
+                lo = mid + 1
+        # print(lo - 1)
+        return lo - 1
+
+    def linear_search(self, value):
+        """
         查找某个值在向量中的秩
         :param value: 要查找的值
         :return: 不大于value的最后一个元素的位置
@@ -79,12 +118,23 @@ class Vector_ordered():
         return i - 1
 
     def binary_search(self, value):
+        """
+        二分查找
+        递归调用下面的binary_search_range函数，达到查找的目的。
+
+        这个查找方式虽然已经是1.5logn级别，但是还是有问题：
+        转向左右分支的比较次数不同，但是递归深度相同。 向左查找只需要一次比较，️而向右查找需要两次。
+        所以可以用fibonacci查找来优化
+        :param value:要查找的值
+        :return:索引 或者找不到的-1
+        """
         return self.binary_search_range(value, 0, self.size)
 
     def binary_search_range(self, value, lo, hi):
         if hi == lo:
-            return lo
+            return -1
         i = ((hi - lo) >> 1) + lo
+        # print(i)
         if value < self._elem[i]:
             # print(f'not found, next:{lo}, {i}')
             return self.binary_search_range(value, lo, i)
@@ -94,6 +144,55 @@ class Vector_ordered():
         else:
             # print(f'found {i}')
             return i
+
+    def fib_search(self, value):
+        return self.fib_search_range(value, 0, self.size)
+
+    def fib_search_range(self, value, lo, hi):
+        if hi == lo:
+            return -1
+        i = int((hi - lo) * 0.618) + lo
+        # print(i)
+        if value < self._elem[i]:
+            # print(f'not found, next:{lo}, {i}')
+            return self.binary_search_range(value, lo, i)
+        elif value > self._elem[i]:
+            # print(f'not found, next:{i+1}, {hi}')
+            return self.binary_search_range(value, i + 1, hi)
+        else:
+            # print(f'found {i}')
+            return i
+
+    def binary_search_improve(self, value):
+        return self.binary_search_improve_range(value, 0, self.size)
+
+    def binary_search_improve_range(self, value, lo, hi):
+        # 下面的是递归算法 可以改为迭代
+        # if hi == lo:
+        #     return -1
+        # i = ((hi - lo) >> 1) + lo
+        # # print(i)
+        # if value < self._elem[i]:
+        #     # print(f'not found, next:{lo}, {i}')
+        #     return self.binary_search_range(value, lo, i)
+        # else:
+        #     # print(f'not found, next:{i+1}, {hi}')
+        #     return self.binary_search_range(value, i, hi)
+        # print(f"finding {value}")
+        while hi - lo != 1:
+            mid = (hi + lo) >> 1
+            if value < self._elem[mid]:
+                hi = mid
+                # print(f'now left:{lo}, {hi}')
+
+            else:
+                lo = mid
+                # print(f'now right:{lo}, {hi}')
+
+        if self._elem[lo] == value:
+            return lo
+        else:
+            return -1
 
     def insert(self, value):
         self._expand()
@@ -113,14 +212,28 @@ class Vector_ordered():
         return f"<Vector elem:{self._elem}>"
 
 
-if __name__ == '__main__':
+def main():
     vec = Vector_ordered()
     import random
 
-    for i in range(1000):
+    vec.insert(3)
+    # print(vec)
+    for i in range(10000):
         vec.insert(random.randint(0, 5500))
+
+    vec.insert(5)
+    vec.insert(5)
+    vec.insert(5)
+    # vec.insert(5)
+    # vec.insert(5)
+    # print(vec.size, vec)
+    # print(vec.search(5))
+    vec.remove(2, 9990)
+    vec.deduplicate()
     print(vec)
-    print(vec.binary_search(2))
+
+    # print(vec.size, vec)
+    # print(vec.search(5))
     # vec.insert(65)
     # print(vec)
     # vec.insert(5)
@@ -128,3 +241,7 @@ if __name__ == '__main__':
     # print(vec)
     # vec.insert(4)
     # print(vec)
+
+
+if __name__ == '__main__':
+    main()
