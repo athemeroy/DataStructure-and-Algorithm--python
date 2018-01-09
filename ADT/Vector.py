@@ -46,6 +46,7 @@ class Vector:
         return self._elem[index]
 
     def put(self, index, value):
+        assert (index < self.size), '向量越界'
         self._elem[index] = value
 
     def append(self, elem):
@@ -127,11 +128,111 @@ class Vector:
             cur += 1
         return False
 
+    def bubble_sort_a(self):
+        """
+        第一个版本的起泡排序
+        每一趟循环，在尾部终止，因为每次冒泡最大的都已经就绪
+        :return: 排序好的向量
+        """
+
+        def swap(array, a, b):
+            array._elem[a], array._elem[b] = array._elem[b], array._elem[a]
+
+        i = 0
+        while i < self.size - 1:
+            j = 0
+            while j < self.size - 1 - i:
+                if self._elem[j] > self._elem[j + 1]:
+                    # print(f'{self._elem[j]} > {self._elem[j + 1]} swaping')
+                    swap(self, j, j + 1)
+                    # else:
+                    # print(f'{self._elem[j]} <= {self._elem[j + 1]} maintain')
+
+                # print(self)
+                j += 1
+            i += 1
+            # print(f'now i = {i}')
+        assert (not self.disordered())
+        return
+
+    def bubble_sort_b(self):
+        """
+        第二个版本的起泡排序
+        因为有些时候可能前面的部分早就被排好序了，但是因为冒泡排序不检查前面是否排好序
+        机械地进行接下来的操作，所以可以定义一个flag：sorted
+        只有在flag被放倒的时候才会进行下一趟
+        每一趟都把
+        :return: 排序好的向量
+        """
+
+        def swap(array, a, b):
+            array._elem[a], array._elem[b] = array._elem[b], array._elem[a]
+
+        i = 0
+        is_sorted = False
+        while (not is_sorted) and i < self.size - 1:
+            is_sorted = True
+            j = 0
+            while j < self.size - 1 - i:
+                if self._elem[j] > self._elem[j + 1]:
+                    # print(f'{self._elem[j]} > {self._elem[j + 1]} swaping')
+                    swap(self, j, j + 1)
+                    is_sorted = False
+                    # else:
+                    # print(f'{self._elem[j]} <= {self._elem[j + 1]} maintain')
+
+                # print(self)
+                j += 1
+            i += 1
+            # print(f'now i = {i}')
+        assert (not self.disordered())
+        return
+
+    def bubble_sort_c(self):
+        """
+        第三个版本的起泡排序
+        第二个版本考虑了如果前面本身是有序的 或者提前已经排好序了
+        但是如果后面是有序的，依然会反复地对后面进行交换（这本身是没有必要的）
+
+        只要记录最后一次扫描交换的位置，就可以在下一次扫描交换的时候少做很多操作
+        :return: 排序好的向量
+        """
+
+        def swap(array, a, b):
+            array._elem[a], array._elem[b] = array._elem[b], array._elem[a]
+
+        i = 0
+        is_sorted = False
+        last_swap = self.size - 1
+        hi = self.size - 1
+        # print(self)
+        # print('*'*50)
+        # while (not sorted) and i < self.size:
+        while not is_sorted:
+            is_sorted = True
+            j = 0
+            while j < hi:
+                if self._elem[j] > self._elem[j + 1]:
+                    # print(f'{self._elem[j]} > {self._elem[j + 1]} swapping')
+                    swap(self, j, j + 1)
+                    last_swap = j + 1
+                    is_sorted = False
+                # else:
+                    # print(f'{self._elem[j]} <= {self._elem[j + 1]} maintaining')
+                j += 1
+                # print(self)
+            # i += 1
+            hi = last_swap
+            # print(f'now i = {i}, hi = {hi}')
+        assert (not self.disordered())
+        return self
+
     def merge_sort(self):
         """
         归并排序
         :return: 排序好的向量
         """
+
         def merge(left, right):
             """
             归并排序的合并部分
@@ -158,6 +259,7 @@ class Vector:
                     merged_result.append(right[j])
                     j += 1
             return merged_result
+
         # 用来分割向量， 生成一个包含仅由一个一个元素组成的向量的向量
         divided_vector = Vector()
         i = 0
@@ -190,14 +292,44 @@ if __name__ == '__main__':
     vec = Vector()
     import random
 
-    for i in range(10):
+    for i in range(30):
         vec.append(random.randint(0, 400))
+
+    # for i in range(30)[::-1]:
+    #     vec.append(i)
     # print('removing 3')
     # vec.remove(3)
-    print(vec)
-    print('removing 2,8')
-    print(vec.remove(2, 8))
-    print(vec)
+    # print(vec)
+    # print('removing 2,8')
+    # print(vec.remove(2, 8))
+    # print(vec)
+    print(vec.bubble_sort_c())
+
+    def a():
+        v = Vector()
+        for i in range(1000):
+            v.append(random.randint(0,300))
+        v.bubble_sort_a()
+
+    def b():
+        v = Vector()
+        for i in range(1000):
+            v.append(random.randint(0,300))
+        v.bubble_sort_b()
+
+    def c():
+        v = Vector()
+        for i in range(1000):
+            v.append(random.randint(0,300))
+        v.bubble_sort_c()
+
+    def d():
+        v = Vector()
+        for i in range(1000):
+            v.append(random.randint(0,300))
+        v.merge_sort()
+
+
     # print('searching for 1 in [10,20)')
     # print(vec.search(1, [10, 20]))
     # print(f'searching for {vec[15]} in [10,20)')
